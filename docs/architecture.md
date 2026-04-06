@@ -4,8 +4,8 @@ This document describes the current structure and design principles of this Neov
 
 The setup may evolve over time, but the main goal stays the same: keep the config **clean, modular, and easy to maintain**.
 
-> Note: this document describes the architecture of the **`main`** branch.
-> If you are using **`laravel-extended`**, the base structure remains the same, but that branch adds an extra Laravel-specific layer documented separately.
+> Note: this document describes the architecture of the unified **`main`** branch.
+> It combines the Laravel and PrestaShop workflow layers in one configuration.
 
 ---
 
@@ -37,9 +37,12 @@ This configuration follows a few simple rules:
 │       ├── conform.lua
 │       ├── treesitter.lua
 │       ├── cmp.lua
+│       ├── laravel.lua
 │       ├── nvimtree.lua
 │       ├── bufferline.lua
-│       └── trouble.lua
+│       ├── trouble.lua
+│       └── lsp/
+│           └── twiggy_language_server.lua
 ├── after/
 │   ├── plugin/
 │   │   └── setup.lua
@@ -381,7 +384,7 @@ If a plugin throws `module not found` errors when configured, moving its setup h
 
 ## LSP
 
-The `after/lsp/` folder contains **one configuration file per LSP server**.
+The `after/lsp/` folder contains **most per-server LSP definitions**, and `lua/config/lsp/` is used for custom local LSP config modules that are registered from `init.lua`.
 
 The idea is very simple:
 
@@ -394,15 +397,15 @@ Lua language server. Used mainly for working on the Neovim config itself.
 
 ### `after/lsp/intelephense.lua`
 
-PHP language server. This is the main PHP/Laravel server. It can include specific settings such as disabling `telemetry`.
+PHP language server. This is the main PHP server for both Laravel and PrestaShop projects. It includes root markers for both project types and can include specific settings such as disabling `telemetry`.
 
 ### `after/lsp/html.lua`
 
-HTML language server. Also reused for Blade files.
+HTML language server. Also reused for Blade and Smarty files.
 
 ### `after/lsp/tailwindcss.lua`
 
-Tailwind CSS language server. Very useful in Blade, Vue, HTML, and JS/TS.
+Tailwind CSS language server. Very useful in Blade, Smarty, Twig, Vue, HTML, and JS/TS.
 
 ### `after/lsp/ts_ls.lua`
 
@@ -423,6 +426,10 @@ ESLint language server. Responsible for lint diagnostics and ESLint-related acti
 ### `after/lsp/marksman.lua`
 
 Markdown language server.
+
+### `lua/config/lsp/twiggy_language_server.lua`
+
+Twig language server used for PrestaShop Twig templates.
 
 ---
 

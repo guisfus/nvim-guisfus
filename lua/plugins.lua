@@ -8,6 +8,7 @@ vim.pack.add({
 
 	-- Dependencies / base utilities
 	gh("nvim-lua/plenary.nvim"),
+	gh("MunifTanjim/nui.nvim"),
 	gh("nvim-tree/nvim-web-devicons"),
 	gh("nvim-mini/mini.icons"),
 
@@ -37,12 +38,16 @@ vim.pack.add({
 	gh("numToStr/Comment.nvim"),
 	gh("windwp/nvim-autopairs"),
 	gh("RRethy/vim-illuminate"),
+	gh("blueyed/smarty.vim"),
 
 	-- UI
 	gh("nvim-lualine/lualine.nvim"),
 	gh("akinsho/bufferline.nvim"),
 	gh("lukas-reineke/indent-blankline.nvim"),
 	gh("ellisonleao/gruvbox.nvim"),
+
+	-- Laravel
+	gh("adibhanna/laravel.nvim"),
 })
 
 vim.cmd.colorscheme("gruvbox")

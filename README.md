@@ -1,8 +1,8 @@
-# Neovim Configuration for Laravel + Vue
+# Neovim Configuration for Laravel + PrestaShop + Vue
 
 A modular **Neovim `0.12+`** configuration built around native Neovim features.
 
-It is optimized for a **Laravel + Vue + Inertia** workflow, while staying clean enough to reuse as a general web-development setup.
+It is optimized for a **Laravel + Vue + Inertia** workflow and a **PrestaShop** workflow, while staying clean enough to reuse as a general web-development setup.
 
 ![Neovim config screenshot](.github/assets/screenshot.png)
 
@@ -16,19 +16,14 @@ It focuses on:
 - preferring native Neovim features when they are good enough
 - using `vim.pack` instead of a third-party plugin manager
 - separating plugin declaration, plugin setup, and LSP configuration clearly
-- staying useful for Laravel, Vue, TypeScript, Lua, Markdown, and everyday editing
+- staying useful for Laravel, PrestaShop, Vue, TypeScript, Lua, Markdown, and everyday editing
 - degrading gracefully when optional external tools are missing
 
 ## Branches
 
-This repository is intended to have two clear flavors:
+The `main` branch is the all-in-one setup.
 
-- **`main`** → minimal and clean base setup for PHP, Laravel, and Vue
-- **`laravel-extended`** → same base, with extra Laravel tooling and navigation
-
-Use `main` if you want the leanest possible starting point.
-
-Use `laravel-extended` if you want a richer Laravel workflow out of the box.
+It combines the Laravel-focused and PrestaShop-focused configuration into a single working tree so you can switch projects without changing branches.
 
 ## Who this is for
 
@@ -37,7 +32,7 @@ This repo is a good fit if you want:
 - a personal Neovim config that is still clean enough to publish and maintain
 - built-in LSP with explicit per-server files
 - Treesitter, completion, formatting, diagnostics, file explorer, and fuzzy search
-- a practical base for web development, especially Laravel + Vue
+- a practical base for web development, especially Laravel, PrestaShop, and Vue
 - a setup that stays readable and easy to extend
 
 ## What works out of the box
@@ -55,12 +50,14 @@ This configuration includes:
 
 ### Main language workflow
 
-- **Laravel / PHP**: `intelephense` + `pint`
+- **Laravel / PHP**: `intelephense` + `laravel.nvim` + `pint`
+- **PrestaShop / PHP**: `intelephense` + `twiggy-language-server` + `php-cs-fixer`
 - **Vue**: `vue_ls` + `ts_ls` + `@vue/typescript-plugin`
 - **TypeScript / JavaScript**: TypeScript LSP + Prettier + optional ESLint diagnostics
 - **Lua**: `lua_ls` + `stylua`
 - **Markdown**: `marksman`
 - **Blade**: custom filetype detection plus Treesitter parser support
+- **Smarty / Twig**: dedicated filetype detection for PrestaShop templates
 
 ## Quick start
 
@@ -148,6 +145,7 @@ Install a clipboard provider depending on your OS:
 - `prettier`
 - `stylua`
 - `vendor/bin/pint` for Laravel projects
+- `vendor/bin/php-cs-fixer` for PrestaShop projects
 
 ## Suggested installs
 
@@ -271,7 +269,7 @@ If you want to extend language support, check:
 - `lua/config/conform.lua`
 - `lua/config/treesitter.lua`
 
-If you want a richer Laravel-specific workflow, check the `laravel-extended` branch.
+This branch already includes the Laravel and PrestaShop workflow layers.
 
 ## Notes by stack
 
@@ -289,13 +287,23 @@ If a required binary is missing, that server is skipped instead of hard-failing 
 
 ### Laravel / PHP
 
-PHP formatting uses `pint`, preferably from the Laravel project itself:
+Laravel projects use `pint`, preferably from the project itself:
 
 - `vendor/bin/pint`
 
-This `main` branch keeps Laravel support intentionally lightweight.
+This branch also includes `laravel.nvim` commands and completion.
 
-If you want more Laravel-aware navigation and helper commands inside Neovim, use the `laravel-extended` branch.
+### PrestaShop / PHP
+
+PrestaShop projects use `php-cs-fixer`, preferably from the project itself:
+
+- `vendor/bin/php-cs-fixer`
+
+PrestaShop template support includes:
+
+- `tpl` files detected as `smarty`
+- `twig` files detected as `twig`
+- `twiggy-language-server` for Twig projects
 
 ### Blade
 

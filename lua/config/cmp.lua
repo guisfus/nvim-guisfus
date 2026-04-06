@@ -48,6 +48,7 @@ function M.setup()
 
 		-- Source for autocompletion
 		sources = cmp.config.sources({
+			{ name = "laravel" },
 			{ name = "nvim_lsp" },
 			{ name = "luasnip" },
 			{ name = "path" },
@@ -58,6 +59,7 @@ function M.setup()
 		formatting = {
 			format = function(entry, vim_item)
 				vim_item.menu = ({
+					laravel = "[Laravel]",
 					nvim_lsp = "[LSP]",
 					luasnip = "[Snip]",
 					buffer = "[Buf]",
