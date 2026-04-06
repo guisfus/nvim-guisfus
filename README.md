@@ -1,4 +1,4 @@
-# Neovim Configuration for Laravel + PrestaShop + Vue
+# Neovim Configuration
 
 A modular **Neovim `0.12+`** configuration built around native Neovim features.
 
