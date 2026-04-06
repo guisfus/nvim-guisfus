@@ -19,6 +19,17 @@ It focuses on:
 - staying useful for Laravel, Vue, TypeScript, Lua, Markdown, and everyday editing
 - degrading gracefully when optional external tools are missing
 
+## Branches
+
+This repository is intended to have two clear flavors:
+
+- **`main`** → minimal and clean base setup for PHP, Laravel, and Vue
+- **`laravel-extended`** → same base, with extra Laravel tooling and navigation
+
+Use `main` if you want the leanest possible starting point.
+
+Use `laravel-extended` if you want a richer Laravel workflow out of the box.
+
 ## Who this is for
 
 This repo is a good fit if you want:
@@ -76,14 +87,19 @@ To actually apply those updates, run:
 :write
 ```
 
-If you do not confirm with `:write`, the updates are not applied.  
+If you do not confirm with `:write`, the updates are not applied.
+
 To discard them, use:
 
 ```vim
 :quit
 ```
 
-After applying plugin updates, you can optionally run `:restart` to start using the updated plugin code.
+After applying plugin updates, you can optionally run:
+
+```vim
+:restart
+```
 
 ## Requirements
 
@@ -154,42 +170,7 @@ npm install -g \
 cargo install stylua
 ```
 
-## Notes by stack
-
-### Vue
-
-Vue support depends on:
-
-- `vue_ls`
-- `ts_ls`
-- `@vue/typescript-plugin`
-
-The config first tries to resolve Vue tooling from the project tree and then falls back to the global npm installation.
-
-If a required binary is missing, that server is skipped instead of hard-failing at startup.
-
-### Laravel / PHP
-
-PHP formatting uses `pint`, preferably from the Laravel project itself:
-
-- `vendor/bin/pint`
-
-### Blade
-
-Blade support depends on:
-
-- custom filetype detection
-- Treesitter parser support
-
-This repo currently **does not ship custom Blade queries**.
-
-If you want richer Blade highlighting than the upstream parser provides, add them under:
-
-```text
-queries/blade/
-```
-
-## Common first-run commands
+## Useful first-run commands
 
 These are the most useful commands after cloning the repo:
 
@@ -205,6 +186,68 @@ A good first check is:
 - confirm plugin updates with `:write` in the `vim.pack.update()` confirmation buffer
 - run `:TSUpdate` if Treesitter features are incomplete
 - run `:checkhealth` if clipboard, providers, or tooling behave unexpectedly
+
+## Useful keymaps
+
+The leader key is set to `<Space>`.
+
+### Window navigation
+
+- `<C-h>` → move to left window
+- `<C-j>` → move to lower window
+- `<C-k>` → move to upper window
+- `<C-l>` → move to right window
+
+### Buffer navigation
+
+- `<S-h>` → previous buffer
+- `<S-l>` → next buffer
+- `<leader>bc` → close current buffer
+
+### File explorer
+
+- `<leader>e` → toggle `nvim-tree`
+- `<leader>o` → focus `nvim-tree`
+- `<leader>fe` → reveal current file in explorer
+
+### Search with `fzf-lua`
+
+- `<leader>ff` → find files
+- `<leader>fg` → live grep
+- `<leader>fb` → list buffers
+- `<leader>fh` → help tags
+- `<leader>fr` → recent files
+
+### Diagnostics
+
+- `<leader>cd` → line diagnostics
+- `]d` → next diagnostic
+- `[d` → previous diagnostic
+
+### Trouble
+
+- `<leader>xx` → workspace diagnostics
+- `<leader>xX` → buffer diagnostics
+- `<leader>cs` → document symbols
+- `<leader>cl` → LSP definitions/references list view
+- `<leader>xL` → location list
+- `<leader>xQ` → quickfix list
+
+### Formatting
+
+- `<leader>fc` → format current file with `conform.nvim`
+
+### LSP keymaps
+
+These are attached only when an LSP server is active for the current buffer:
+
+- `K` → hover
+- `gd` → definition
+- `gD` → declaration
+- `gi` → implementation
+- `go` → type definition
+- `<leader>rn` → rename symbol
+- `<leader>ca` → code action
 
 ## Daily usage
 
@@ -227,6 +270,47 @@ If you want to extend language support, check:
 - `after/lsp/`
 - `lua/config/conform.lua`
 - `lua/config/treesitter.lua`
+
+If you want a richer Laravel-specific workflow, check the `laravel-extended` branch.
+
+## Notes by stack
+
+### Vue
+
+Vue support depends on:
+
+- `vue_ls`
+- `ts_ls`
+- `@vue/typescript-plugin`
+
+The config first tries to resolve Vue tooling from the project tree and then falls back to the global npm installation.
+
+If a required binary is missing, that server is skipped instead of hard-failing at startup.
+
+### Laravel / PHP
+
+PHP formatting uses `pint`, preferably from the Laravel project itself:
+
+- `vendor/bin/pint`
+
+This `main` branch keeps Laravel support intentionally lightweight.
+
+If you want more Laravel-aware navigation and helper commands inside Neovim, use the `laravel-extended` branch.
+
+### Blade
+
+Blade support depends on:
+
+- custom filetype detection
+- Treesitter parser support
+
+This repo currently **does not ship custom Blade queries**.
+
+If you want richer Blade highlighting than the upstream parser provides, add them under:
+
+```text
+queries/blade/
+```
 
 ## Repository layout
 
@@ -366,3 +450,7 @@ Compared with heavier Neovim distributions, the goal here is:
 - clearer file ownership
 - easier Laravel + Vue customization
 - native Neovim-first decisions where possible
+
+## License
+
+MIT
