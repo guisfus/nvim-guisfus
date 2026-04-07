@@ -64,7 +64,7 @@ This configuration includes:
 Clone the repo into your Neovim config directory:
 
 ```bash
-git clone https://github.com/guisfus/nvim-laravel-vue.git ~/.config/nvim
+git clone https://github.com/guisfus/nvim-guisfus.git ~/.config/nvim
 ```
 
 Open Neovim once so `vim.pack` can install plugins.
