@@ -1,14 +1,7 @@
 return {
 	cmd = { "intelephense", "--stdio" },
 	filetypes = { "php" },
-	root_markers = {
-		"composer.json",
-		"artisan",
-		"config/config.inc.php",
-		"config/defines.inc.php",
-		"app/config/parameters.php",
-		".git",
-	},
+	root_dir = require("config.lsp.prestashop_root"),
 	settings = {
 		intelephense = {
 			telemetry = {
