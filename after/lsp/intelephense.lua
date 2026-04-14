@@ -1,7 +1,7 @@
 return {
 	cmd = { "intelephense", "--stdio" },
 	filetypes = { "php" },
-	root_dir = require("config.lsp.prestashop_root"),
+	root_dir = require("config.lsp.php_root"),
 	settings = {
 		intelephense = {
 			telemetry = {

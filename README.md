@@ -25,6 +25,17 @@ The `main` branch is the all-in-one setup.
 
 It combines the Laravel-focused and PrestaShop-focused configuration into a single working tree so you can switch projects without changing branches.
 
+Internally, that unified setup is organized around small workflow modules under `lua/config/workflows/`.
+
+### Workflow modules
+
+- `core` = shared editor, UI, completion, and baseline LSP behavior
+- `frontend` = TypeScript, Vue, ESLint, Tailwind, and Prettier for frontend buffers
+- `laravel` = `laravel.nvim`, Blade-aware behavior, and `pint`
+- `prestashop` = Smarty/Twig support, Twiggy, and `php-cs-fixer`
+
+The idea is simple: `main` keeps every workflow available, but workflow-specific setup is only activated when the current project or buffer matches it.
+
 ## Who this is for
 
 This repo is a good fit if you want:
@@ -58,6 +69,16 @@ This configuration includes:
 - **Markdown**: `marksman`
 - **Blade**: custom filetype detection plus Treesitter parser support
 - **Smarty / Twig**: dedicated filetype detection for PrestaShop templates
+
+## Branch strategy
+
+If you keep specialized branches, the cleanest approach now is:
+
+- keep shared editor behavior in `core`
+- keep branch-specific behavior in `lua/config/workflows/*`
+- avoid forking `init.lua`, `lua/plugins.lua`, `lua/config/filetypes.lua`, and `lua/config/conform.lua` unless the architecture itself changes
+
+That keeps branch diffs small and makes merges back into `main` much easier.
 
 ## Quick start
 
@@ -139,6 +160,7 @@ Install a clipboard provider depending on your OS:
 - `vscode-eslint-language-server`
 - `@tailwindcss/language-server`
 - `marksman`
+- `twiggy-language-server`
 
 ### Formatters
 
@@ -285,6 +307,10 @@ The config first tries to resolve Vue tooling from the project tree and then fal
 
 If a required binary is missing, that server is skipped instead of hard-failing at startup.
 
+Warnings for missing binaries are deferred until you open a matching filetype, so the unified `main` branch does not complain about unrelated workflows during startup.
+
+Workflow-specific setup is also gated by the current project when Neovim starts: Laravel setup only loads in Laravel roots, PrestaShop-specific setup only loads in PrestaShop roots, and frontend LSPs are only considered when you open matching frontend buffers.
+
 ### Laravel / PHP
 
 Laravel projects use `pint`, preferably from the project itself:
@@ -341,8 +367,10 @@ queries/blade/
 │   │   ├── conform.lua
 │   │   ├── filetypes.lua
 │   │   ├── keymaps.lua
+│   │   ├── lsp/
 │   │   ├── nvimtree.lua
 │   │   ├── options.lua
+│   │   ├── workflows/
 │   │   ├── treesitter.lua
 │   │   └── trouble.lua
 │   └── plugins.lua
@@ -356,6 +384,9 @@ queries/blade/
 - `lua/plugins.lua` → plugin declaration
 - `after/plugin/setup.lua` → plugin setup after plugins are available
 - `lua/config/*` → modular editor and plugin configuration
+- `lua/config/workflows/*` → per-workflow plugin and LSP registration
+- `lua/config/lsp/*` → shared LSP activation and root helpers
+- `lua/config/filetypes.lua` and `lua/config/conform.lua` → aggregate workflow-specific behavior
 - `after/lsp/*` → one file per LSP server
 - `docs/architecture.md` → internal design notes and extension guide
 - `.github/assets/` → repository presentation assets such as the README screenshot

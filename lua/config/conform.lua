@@ -1,95 +1,51 @@
 local M = {}
 
-local function find_upward(path, markers)
-	return vim.fs.find(markers, {
-		upward = true,
-		path = path,
-	})[1]
-end
-
-local function php_formatters(bufnr)
-	local filename = vim.api.nvim_buf_get_name(bufnr)
-	local dirname = vim.fs.dirname(filename)
-	local conform = require("conform")
-
-	if dirname and find_upward(dirname, { "artisan" }) then
-		return { "pint" }
-	end
-
-	if dirname and find_upward(dirname, {
-		"config/config.inc.php",
-		"config/defines.inc.php",
-		"app/config/parameters.php",
-	}) then
-		return { "php_cs_fixer" }
-	end
-
-	if conform.get_formatter_info("pint", bufnr).available then
-		return { "pint" }
-	end
-
-	if conform.get_formatter_info("php_cs_fixer", bufnr).available then
-		return { "php_cs_fixer" }
+local function resolve_php_formatters(bufnr, workflows)
+	for _, workflow in ipairs(workflows) do
+		local config = workflow.conform and workflow.conform() or nil
+		local php_formatter = config and config.php_formatter or nil
+		if php_formatter then
+			local formatters = php_formatter(bufnr)
+			if formatters and not vim.tbl_isempty(formatters) then
+				return formatters
+			end
+		end
 	end
 
 	return {}
 end
 
 function M.setup()
+	local workflow_modules = {}
+	local formatters = {}
+	local formatters_by_ft = {}
+
+	-- Workflows contribute formatter definitions and filetype mappings.
+	require("config.workflows").each(function(workflow)
+		workflow_modules[#workflow_modules + 1] = workflow
+
+		local config = workflow.conform and workflow.conform() or nil
+		if not config then
+			return
+		end
+
+		for name, formatter in pairs(config.formatters or {}) do
+			formatters[name] = formatter
+		end
+
+		for filetype, formatter_list in pairs(config.formatters_by_ft or {}) do
+			formatters_by_ft[filetype] = formatter_list
+		end
+	end)
+
+	formatters_by_ft.php = function(bufnr)
+		-- PHP is selected dynamically so Laravel and PrestaShop can coexist in `main`.
+		return resolve_php_formatters(bufnr, workflow_modules)
+	end
+
 	require("conform").setup({
-		formatters = {
-			pint = {
-				command = function(ctx)
-					local local_pint = vim.fs.find("vendor/bin/pint", {
-						upward = true,
-						path = ctx.dirname,
-					})[1]
-
-					if local_pint then
-						return local_pint
-					end
-
-					return "pint"
-				end,
-				args = { "$FILENAME" },
-				stdin = false,
-			},
-			php_cs_fixer = {
-				command = function(ctx)
-					local local_php_cs_fixer = vim.fs.find("vendor/bin/php-cs-fixer", {
-						upward = true,
-						path = ctx.dirname,
-					})[1]
-
-					if local_php_cs_fixer then
-						return local_php_cs_fixer
-					end
-
-					return "php-cs-fixer"
-				end,
-				args = { "fix", "$FILENAME" },
-				stdin = false,
-			},
-		},
-
-		formatters_by_ft = {
-			lua = { "stylua" },
-
-			javascript = { "prettier" },
-			javascriptreact = { "prettier" },
-			typescript = { "prettier" },
-			typescriptreact = { "prettier" },
-			vue = { "prettier" },
-
-			css = { "prettier" },
-			scss = { "prettier" },
-			html = { "prettier" },
-			json = { "prettier" },
-			yaml = { "prettier" },
-			markdown = { "prettier" },
-
-			php = php_formatters,
-		},
+		formatters = formatters,
+		formatters_by_ft = formatters_by_ft,
 
 		default_format_opts = {
 			lsp_format = "fallback",

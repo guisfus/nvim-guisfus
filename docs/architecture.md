@@ -18,6 +18,10 @@ This configuration follows a few simple rules:
 - keep global keymaps in one place
 - keep plugin behavior in `lua/config/...`
 - keep LSP servers split into one file per server
+- defer tool-specific LSP activation until a matching filetype is opened
+- keep Laravel, frontend, and PrestaShop wiring in small workflow modules
+- let shared aggregators compose filetypes and formatter behavior from those workflow modules
+- gate workflow-specific setup by project markers so `main` can stay unified without noisy startup behavior
 - prefer simple structure over clever abstractions
 
 ---
@@ -38,11 +42,23 @@ This configuration follows a few simple rules:
 │       ├── treesitter.lua
 │       ├── cmp.lua
 │       ├── laravel.lua
+│       ├── lsp/
+│       │   ├── activate.lua
+│       │   ├── eslint_root.lua
+│       │   ├── package_json.lua
+│       │   ├── php_root.lua
+│       │   ├── prestashop_root.lua
+│       │   ├── tailwind_root.lua
+│       │   └── twiggy_language_server.lua
 │       ├── nvimtree.lua
 │       ├── bufferline.lua
 │       ├── trouble.lua
-│       └── lsp/
-│           └── twiggy_language_server.lua
+│       └── workflows/
+│           ├── core.lua
+│           ├── frontend.lua
+│           ├── init.lua
+│           ├── laravel.lua
+│           └── prestashop.lua
 ├── after/
 │   ├── plugin/
 │   │   └── setup.lua
@@ -73,7 +89,7 @@ It is responsible for:
 - loading plugins
 - defining keymaps when an LSP attaches
 - setting common LSP capabilities
-- enabling the LSP servers
+- registering workflow-aware LSP activation
 
 ### `lua/plugins.lua`
 
@@ -110,7 +126,7 @@ The mental model is:
 
 **What to change here**
 
-- add new `vim.lsp.enable(...)` calls
+- wire new top-level workflow or LSP coordination only when it truly affects the whole config
 - change the general load order
 - add very central global logic
 
@@ -183,11 +199,13 @@ Add something here when you want **Neovim to do something automatically in respo
 
 **Responsibility**
 
-- teach Neovim custom filetypes
+- aggregate custom filetypes exposed by workflow modules
 
 **Main example in this configuration**
 
 - detect `*.blade.php` as `blade`
+- detect `*.tpl` as `smarty`
+- detect `*.twig` as `twig`
 
 This matters because many plugins and LSPs depend on the `filetype`.
 
@@ -199,17 +217,60 @@ This matters because many plugins and LSPs depend on the `filetype`.
 
 **Responsibility**
 
-- list of plugins installed with `vim.pack.add()`
+- aggregate plugin specs exposed by `lua/config/workflows/*`
 
 **Useful rule**
 
-- if you want to add a new plugin, add it here first
-- then configure it in `lua/config/...` or in `after/plugin/setup.lua`
+- if a plugin belongs to a specific workflow, add it in that workflow module first
+- keep `plugins.lua` focused on composition, deduplication, and install order
 
 **Mental model**
 
-- `plugins.lua` = which plugins exist
-- `after/plugin/setup.lua` = how they are configured
+- workflow modules decide what they contribute
+- `plugins.lua` combines those contributions into one install list
+- `after/plugin/setup.lua` initializes only the active workflow configs
+
+---
+
+### `lua/config/workflows/*`
+
+**Responsibility**
+
+- group workflow-specific plugins, setup hooks, filetypes, formatters, and LSP activation rules
+
+**Current workflows**
+
+- `core`
+- `frontend`
+- `laravel`
+- `prestashop`
+
+**What belongs here**
+
+- a plugin that only exists for one workflow
+- formatter selection logic tied to one project type
+- filetype detection tied to one template or framework family
+- project activation rules such as `artisan`, `package.json`, or PrestaShop markers
+
+**What should stay out**
+
+- truly global editor options
+- common keymaps shared by every project
+- generic LSP server config files under `after/lsp/`
+
+---
+
+### Branch strategy
+
+If you keep specialized branches, prefer changing workflow modules instead of forking central files.
+
+The intended priority order is:
+
+- first: `lua/config/workflows/*`
+- second: `after/lsp/*` when a server config really differs
+- last resort: `init.lua`, `lua/plugins.lua`, `lua/config/filetypes.lua`, `lua/config/conform.lua`
+
+That keeps merges simpler and prevents drift across the whole config.
 
 ---
 
@@ -217,7 +278,7 @@ This matters because many plugins and LSPs depend on the `filetype`.
 
 **Responsibility**
 
-- run the `.setup()` calls for already loaded plugins
+- run the `.setup()` calls for already loaded plugins and active workflow modules
 
 This is where things like these live:
 
@@ -235,6 +296,8 @@ This is where things like these live:
 - `trouble`
 
 If a plugin throws `module not found` errors when configured, moving its setup here is often the right fix.
+
+In the current design, this file also filters workflow-specific setup by the detected project context.
 
 ---
 
